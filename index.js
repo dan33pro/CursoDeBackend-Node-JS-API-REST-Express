@@ -1,4 +1,5 @@
 const express = require('express');
+const { faker } = require('@faker-js/faker');
 
 const app = express();
 const port = 3000;
@@ -12,45 +13,49 @@ app.get('/new-route', (req, res) => {
 });
 
 // Quemando productos
-let products = [
-  {
-    id: 1,
-    name: 'Tablet',
-    price: 200,
-    categoryID: 1,
-  },
-  {
-    id: 2,
-    name: 'TV',
-    price: 400,
-    categoryID: 1,
-  },
-  {
-    id: 3,
-    name: 'Cama',
-    price: 100,
-    categoryID: 3,
-  },
-];
+let products = [];
+for ( let i = 0; i < 200; i++ ) {
+  products.push({
+    id: i,
+    name: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    price: faker.commerce.price(),
+    image: faker.image.imageUrl(),
+    categoryID: Math.trunc(Math.random()*19),
+  });
+}
 
 // Quemando categorias
-let categories = [
-  {
-    id: 1,
-    name: 'Tecnología',
-  },
-  {
-    id: 2,
-    name: 'Exteriores',
-  },
-  {
-    id: 3,
-    name: 'Muebles',
-  },
-];
+let categories = [];
+for ( let i = 0; i < 20; i++ ) {
+  categories.push({
+    id: i,
+    name: faker.commerce.department(),
+  })
+}
+
+// Quemando usuarios
+let users = [];
+for (let i = 0; i < 20; i++) {
+  users.push({
+    id: i,
+    name: faker.name.firstName(),
+    phone: faker.phone.number(),
+  });
+}
 
 app.get('/products', (req, res) => {
-  res.json(products);
+  const { size } = req.query;
+  if ( parseInt(size) ) {
+    const productsR = products.slice(0, parseInt(size));
+    res.json(productsR);
+  } else {
+    res.json(products);
+  }
+});
+
+app.get('/products/filter', (req, res) => {
+  res.send('Yo soy un filter');
 });
 
 app.get('/products/:id', (req, res) => {
@@ -83,6 +88,23 @@ app.get('/categories/:categoryId/products/:productName', (req, res) => {
     (product) => product.categoryID == categoryId && product.name == productName
   );
   res.json(productsRes);
+});
+
+app.get('/users', (req, res) => {
+  const { limit, offset } = req.query;
+  if ( limit && offset ) {
+    const usersR = [];
+    const nuLimit = parseInt(limit);
+    const numOffset = parseInt(offset);
+    if ( (nuLimit + numOffset) - 1 < users.length ) {
+      for ( let i = offset; i < nuLimit + numOffset; i++ ) {
+        usersR.push(users[i]);
+      }
+    }
+    res.json(usersR);
+  } else {
+    res.json(users);
+  }
 });
 
 app.listen(port, () => {
