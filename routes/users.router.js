@@ -23,8 +23,12 @@ router.get('/', (req, res) => {
       for ( let i = offset; i < nuLimit + numOffset; i++ ) {
         usersR.push(users[i]);
       }
+      res.json(usersR);
+    } else {
+      res.status(404).json({
+        message: 'invalid querys',
+      });
     }
-    res.json(usersR);
   } else {
     res.json(users);
   }
@@ -33,13 +37,20 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   const { id } = req.params;
   const user = users.filter((user) => user.id == id);
-  res.json(user);
+
+  if ( user.length != 0) {
+    res.json(user);
+  } else {
+    res.status(404).json({
+      message: 'not found',
+    });
+  }
 });
 
 router.post('/', (req, res) => {
   const body = req.body;
   users.push(body);
-  res.json({
+  res.status(201).json({
     message: 'created',
     data: body,
   });

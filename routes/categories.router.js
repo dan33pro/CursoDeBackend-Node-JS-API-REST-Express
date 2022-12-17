@@ -20,7 +20,15 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   const { id } = req.params;
   const category = categories.filter((category) => category.id == id);
-  res.json(category);
+
+  if ( category.length != 0 ) {
+    res.json(category);
+  } else {
+    res.status(404).json({
+      message: 'not found',
+    });
+  }
+
 });
 
 router.get('/:id/products', (req, res) => {
@@ -28,7 +36,14 @@ router.get('/:id/products', (req, res) => {
   const productsRes = products.filter(
     (product) => product.categoryID == categoryID
   );
-  res.json(productsRes);
+
+  if ( productsRes.length != 0 ) {
+    res.json(productsRes);
+  } else {
+    res.status(404).json({
+      message: 'not found',
+    });
+  }
 });
 
 router.get('/:categoryId/products/:productName', (req, res) => {
@@ -36,7 +51,14 @@ router.get('/:categoryId/products/:productName', (req, res) => {
   const productsRes = products.filter(
     (product) => product.categoryID == categoryId && product.name == productName
   );
-  res.json(productsRes);
+
+  if ( productsRes.length != 0 ) {
+    res.json(productsRes);
+  } else {
+    res.status(404).json({
+      message: 'not found',
+    });
+  }
 });
 
 module.exports = router;
