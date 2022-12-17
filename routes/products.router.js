@@ -45,4 +45,52 @@ router.post('/', (req, res) => {
   });
 });
 
+router.put('/:id', (req, res) => {
+  const { id } = req.params;
+  const body = req.body;
+
+  products = products.map((product) => {
+    if ( product.id == id ) {
+      return body;
+    }
+    return product;
+  });
+
+  res.json({
+    message: 'update',
+    data: body,
+  });
+});
+
+router.patch('/:id', (req, res) => {
+  const { id } = req.params;
+  const body = req.body;
+
+  products = products.map((product) => {
+    if ( product.id == id ) {
+      return {
+        ...product,
+        ...body,
+      };
+    }
+    return product;
+  });
+
+  res.json({
+    message: 'update',
+    data: body,
+  });
+});
+
+router.delete('/:id', (req, res) => {
+  const { id } = req.params;
+
+  products = products.filter((product) => product.id != id);
+
+  res.json({
+    message: 'deleted',
+    id,
+  });
+});
+
 module.exports = { router, products };
