@@ -1,27 +1,17 @@
 const express = require('express');
-const { faker } = require('@faker-js/faker');
-const products = require('./products.router').products;
+const service = require('../services/categories.service');
 
 const router = express.Router();
 
-// Quemando categorias
-let categories = [];
-for ( let i = 0; i < 20; i++ ) {
-  categories.push({
-    id: i,
-    name: faker.commerce.department(),
-  })
-}
-
 router.get('/', (req, res) => {
-  res.json(categories);
+  res.json(service.find());
 });
 
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-  const category = categories.filter((category) => category.id == id);
+  const category = service.findOne(id);
 
-  if ( category.length != 0 ) {
+  if ( category ) {
     res.json(category);
   } else {
     res.status(404).json({
@@ -33,9 +23,7 @@ router.get('/:id', (req, res) => {
 
 router.get('/:id/products', (req, res) => {
   const categoryID = req.params.id;
-  const productsRes = products.filter(
-    (product) => product.categoryID == categoryID
-  );
+  const productsRes = service.findByCategory(categoryID);
 
   if ( productsRes.length != 0 ) {
     res.json(productsRes);
@@ -47,10 +35,8 @@ router.get('/:id/products', (req, res) => {
 });
 
 router.get('/:categoryId/products/:productName', (req, res) => {
-  const { categoryId, productName } = req.params;
-  const productsRes = products.filter(
-    (product) => product.categoryID == categoryId && product.name == productName
-  );
+  const { categoryID, productName } = req.params;
+  const productsRes = service.findByCategoryAndName(categoryID, productName);
 
   if ( productsRes.length != 0 ) {
     res.json(productsRes);
