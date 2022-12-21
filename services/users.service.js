@@ -15,15 +15,15 @@ class UsersService {
     }
   }
 
-  find() {
+  async find() {
     return this.users;
   }
 
-  findOne(id) {
+  async findOne(id) {
     return  this.users.find((user) => user.id == id);
   }
 
-  findWithLimitAndOffset(nuLimit, numOffset) {
+  async findWithLimitAndOffset(nuLimit, numOffset) {
     const usersR = [];
     for ( let i = numOffset; i < nuLimit + numOffset; i++ ) {
       usersR.push({
@@ -34,11 +34,11 @@ class UsersService {
     return usersR;
   }
 
-  create(user) {
+  async create(user) {
     this.users.push(user);
   }
 
-  size() {
+  async size() {
     return this.users.length;
   }
 }
