@@ -1,15 +1,15 @@
 const express = require('express');
-const service = require('../services/product.service');
+const service = require('../services/products.service');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   const { size } = req.query;
   const numSize = parseInt(size);
   if (numSize) {
-    res.json(service.findWithSize(numSize));
+    res.json(await service.findWithSize(numSize));
   } else {
-    res.json(service.find());
+    res.json(await service.find());
   }
 });
 
@@ -17,10 +17,10 @@ router.get('/filter', (req, res) => {
   res.send('Yo soy un filter');
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const { id } = req.params;
-  const product = service.findOne(id);
-  if ( product ) {
+  const product = await service.findOne(id);
+  if (product) {
     res.status(200).json(product);
   } else {
     res.status(404).json({
@@ -29,61 +29,58 @@ router.get('/:id', (req, res) => {
   }
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const body = req.body;
-  service.create(body);
-  res.status(201).json({
-    message: 'created',
-    data: body,
-  });
+  const respuesta = await service.create(body);
+  res.status(201).json(respuesta);
 });
 
-router.put('/:id', (req, res) => {
-  const { id } = req.params;
-  const body = req.body;
-  let estado = service.update(id, body);
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const product = await service.update(id, body);
 
-  if ( estado ) {
     res.json({
       message: 'update',
-      data: body,
+      data: product,
     });
-  } else {
+  } catch (error) {
     res.status(404).json({
-      message: 'not found',
-    })
-  }
-});
-
-router.patch('/:id', (req, res) => {
-  const { id } = req.params;
-  const body = req.body;
-  const estado = service.partialUpdate(id, body);
-
-  if ( estado ) {
-    res.json({
-      message: 'update',
-      data: body,
-    });
-  } else {
-    res.status(404).json({
-      message: 'not found',
+      message: error.message,
     });
   }
 });
 
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  const estado = service.delete(id);
+router.patch('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const product = await service.partialUpdate(id, body);
 
-  if ( estado ) {
+    res.json({
+      message: 'update',
+      data: product,
+    });
+  } catch (error) {
+    res.status(404).json({
+      message: error.message,
+    });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const productID = await service.delete(id);
+
     res.json({
       message: 'deleted',
-      id,
+      id: productID,
     });
-  } else {
+  } catch (error) {
     res.status(404).json({
-      message: 'not found',
+      message: error.message,
     });
   }
 });

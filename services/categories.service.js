@@ -1,5 +1,5 @@
 const { faker } = require('@faker-js/faker');
-const serviceProducts = require('../services/product.service');
+const serviceProducts = require('./products.service');
 
 class CategoriesService {
   constructor() {
@@ -15,20 +15,20 @@ class CategoriesService {
     }
   }
 
-  find() {
+  async find() {
     return this.categories;
   }
 
-  findOne(id) {
+  async findOne(id) {
     return this.categories.find((category) => category.id == id);
   }
 
-  findByCategory(categoryID) {
-    return serviceProducts.findByCategory(categoryID);
+  async findByCategory(categoryID) {
+    return await serviceProducts.findByCategory(categoryID);
   }
 
-  findByCategoryAndName(categoryID, productName) {
-    return serviceProducts.findByCategoryAndName(categoryID, productName);
+  async findByCategoryAndName(categoryID, productName) {
+    return await serviceProducts.findByCategoryAndName(categoryID, productName);
   }
 }
 
