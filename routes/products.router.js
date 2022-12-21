@@ -1,28 +1,15 @@
 const express = require('express');
-const { faker } = require('@faker-js/faker');
+const service = require('../services/product.service');
 
 const router = express.Router();
 
-// Quemando productos
-let products = [];
-for (let i = 0; i < 200; i++) {
-  products.push({
-    id: i,
-    name: faker.commerce.productName(),
-    description: faker.commerce.productDescription(),
-    price: faker.commerce.price(),
-    image: faker.image.imageUrl(),
-    categoryID: Math.trunc(Math.random() * 20),
-  });
-}
-
 router.get('/', (req, res) => {
   const { size } = req.query;
-  if (parseInt(size)) {
-    const productsR = products.slice(0, parseInt(size));
-    res.json(productsR);
+  const numSize = parseInt(size);
+  if (numSize) {
+    res.json(service.findWithSize(numSize));
   } else {
-    res.json(products);
+    res.json(service.find());
   }
 });
 
@@ -32,19 +19,19 @@ router.get('/filter', (req, res) => {
 
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-  const product = products.filter((product) => product.id == id);
-  if ( product.length == 0 ) {
+  const product = service.findOne(id);
+  if ( product ) {
+    res.status(200).json(product);
+  } else {
     res.status(404).json({
       message: 'not found',
     });
-  } else {
-    res.status(200).json(product);
   }
 });
 
 router.post('/', (req, res) => {
   const body = req.body;
-  products.push(body);
+  service.create(body);
   res.status(201).json({
     message: 'created',
     data: body,
@@ -54,17 +41,9 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   const { id } = req.params;
   const body = req.body;
-  let semaforo = false;
+  let estado = service.update(id, body);
 
-  products = products.map((product) => {
-    if ( product.id == id ) {
-      semaforo = true;
-      return body;
-    }
-    return product;
-  });
-
-  if ( semaforo ) {
+  if ( estado ) {
     res.json({
       message: 'update',
       data: body,
@@ -79,20 +58,9 @@ router.put('/:id', (req, res) => {
 router.patch('/:id', (req, res) => {
   const { id } = req.params;
   const body = req.body;
-  let semaforo = false;
+  const estado = service.partialUpdate(id, body);
 
-  products = products.map((product) => {
-    if ( product.id == id ) {
-      semaforo = true;
-      return {
-        ...product,
-        ...body,
-      };
-    }
-    return product;
-  });
-
-  if ( semaforo ) {
+  if ( estado ) {
     res.json({
       message: 'update',
       data: body,
@@ -106,17 +74,9 @@ router.patch('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
-  let semaforo = false;
+  const estado = service.delete(id);
 
-  products = products.filter((product) => {
-    if ( product.id != id ) {
-      return product;
-    } else {
-      semaforo = true;
-    }
-  });
-
-  if ( semaforo ) {
+  if ( estado ) {
     res.json({
       message: 'deleted',
       id,
@@ -128,4 +88,4 @@ router.delete('/:id', (req, res) => {
   }
 });
 
-module.exports = { router, products };
+module.exports = router;
