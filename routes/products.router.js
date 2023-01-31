@@ -3,13 +3,17 @@ const service = require('../services/products.service');
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  const { size } = req.query;
-  const numSize = parseInt(size);
-  if (numSize) {
-    res.json(await service.findWithSize(numSize));
-  } else {
-    res.json(await service.find());
+router.get('/', async (req, res, next) => {
+  try {
+    const { size } = req.query;
+    const numSize = parseInt(size);
+    if (numSize) {
+      res.json(await service.findWithSize(numSize));
+    } else {
+      res.json(await service.find());
+    }
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -17,15 +21,19 @@ router.get('/filter', (req, res) => {
   res.send('Yo soy un filter');
 });
 
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  const product = await service.findOne(id);
-  if (product) {
-    res.status(200).json(product);
-  } else {
-    res.status(404).json({
-      message: 'not found',
-    });
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await service.findOne(id);
+    if (product) {
+      res.status(200).json(product);
+    } else {
+      res.status(404).json({
+        message: 'not found',
+      });
+    }
+  } catch (error) {
+    next(error);
   }
 });
 
