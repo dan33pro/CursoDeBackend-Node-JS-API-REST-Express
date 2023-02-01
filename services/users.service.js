@@ -1,8 +1,10 @@
 const { faker } = require('@faker-js/faker');
+const boom = require('@hapi/boom');
 
 class UsersService {
   constructor() {
     this.users = [];
+    this.generate();
   }
 
   generate() {
@@ -20,18 +22,26 @@ class UsersService {
   }
 
   async findOne(id) {
-    return  this.users.find((user) => user.id == id);
+    const user =  this.users.find((user) => user.id == id);
+    if ( user ) {
+      return user;
+    }
+    throw boom.notFound('user not found');
   }
 
   async findWithLimitAndOffset(nuLimit, numOffset) {
     const usersR = [];
-    for ( let i = numOffset; i < nuLimit + numOffset; i++ ) {
-      usersR.push({
-        ...this.users[i],
-      });
+    if ( (nuLimit + numOffset) - 1 < await service.size() ) {
+      for ( let i = numOffset; i < nuLimit + numOffset; i++ ) {
+        usersR.push({
+          ...this.users[i],
+        });
+      }
+      if ( usersR.length != 0 ) {
+        return usersR;
+      }
     }
-
-    return usersR;
+    throw boom.notFound('invalid querys');
   }
 
   async create(user) {

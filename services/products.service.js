@@ -1,4 +1,5 @@
 const { faker } = require('@faker-js/faker');
+const boom = require('@hapi/boom');
 
 class ProductsService {
   constructor() {
@@ -15,6 +16,7 @@ class ProductsService {
         price: faker.commerce.price(),
         image: faker.image.imageUrl(),
         categoryID: Math.trunc(Math.random() * 20),
+        isBlock: faker.datatype.boolean(),
       });
     }
   }
@@ -43,24 +45,42 @@ class ProductsService {
   }
 
   async findWithSize(size) {
-    return this.products.slice(0, parseInt(size));
+    if ( size > 0 && size <= this.products.length ) {
+      const products = this.products.slice(0, size);
+      return products;
+    }
+    throw boom.notFound('invalid size');
   }
 
   async findOne(id) {
-    // const error = this.sorry();
-    return this.products.find((product) => product.id == id);
+    const product = this.products.find((product) => product.id == id);
+    if ( product.isBlock ) {
+      throw boom.conflict('product is block');
+    }
+    if ( product ) {
+      return product;
+    }
+    throw boom.notFound('product not found');
   }
 
   async findByCategory(categoryID) {
-    return this.products.filter(
+    const products = this.products.filter(
       (product) => product.categoryID == categoryID
     );
+    if ( products.length != 0 ) {
+      return products;
+    }
+    throw boom.notFound('product not found');
   }
 
   async findByCategoryAndName(categoryId, productName) {
-    return this.products.filter(
+    const products = this.products.filter(
       (product) => product.categoryID == categoryId && product.name == productName
     );
+    if ( products.length != 0 ) {
+      return products;
+    }
+    throw boom.notFound('product not found');
   }
 
   async update(id, body) {
@@ -73,7 +93,7 @@ class ProductsService {
       return this.products[index];
     }
 
-    throw new Error('product not found');
+    throw boom.notFound('product not found');
   }
 
   async partialUpdate(id, change) {
@@ -87,7 +107,7 @@ class ProductsService {
       return this.products[index];
     }
 
-    throw new Error('product not found');
+    throw boom.notFound('product not found');
   }
 
   async delete(id) {
@@ -97,7 +117,7 @@ class ProductsService {
       return { id };
     }
 
-    throw new Error('product not found');
+    throw boom.notFound('product not found');
   }
 }
 

@@ -3,33 +3,29 @@ const service = require('../services/users.service');
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  const { limit, offset } = req.query;
-  if ( limit && offset ) {
-    const nuLimit = parseInt(limit);
-    const numOffset = parseInt(offset);
-    if ( (nuLimit + numOffset) - 1 < await service.size() ) {
-      res.json(await service.findWithLimitAndOffset(nuLimit, numOffset));
+router.get('/', async (req, res, next) => {
+  try {
+    const { limit, offset } = req.query;
+    if (limit && offset) {
+      const nuLimit = parseInt(limit);
+      const numOffset = parseInt(offset);
+      const users = await service.findWithLimitAndOffset(nuLimit, numOffset);
+      res.json(users);
     } else {
-      res.status(404).json({
-        message: 'invalid querys',
-      });
+      res.json(await service.find());
     }
-  } else {
-    res.json(await service.find());
+  } catch (error) {
+    next(error);
   }
 });
 
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  const user = await service.findOne(id);
-
-  if ( user ) {
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await service.findOne(id);
     res.json(user);
-  } else {
-    res.status(404).json({
-      message: 'not found',
-    });
+  } catch (error) {
+    next(error);
   }
 });
 

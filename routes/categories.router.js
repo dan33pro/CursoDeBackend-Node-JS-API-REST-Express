@@ -7,43 +7,36 @@ router.get('/', async (req, res) => {
   res.json(await service.find());
 });
 
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  const category = await service.findOne(id);
-
-  if ( category ) {
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const category = await service.findOne(id);
     res.json(category);
-  } else {
-    res.status(404).json({
-      message: 'not found',
-    });
-  }
-
-});
-
-router.get('/:id/products', async (req, res) => {
-  const categoryID = req.params.id;
-  const productsRes = await service.findByCategory(categoryID);
-
-  if ( productsRes.length != 0 ) {
-    res.json(productsRes);
-  } else {
-    res.status(404).json({
-      message: 'not found',
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
-router.get('/:categoryId/products/:productName', async (req, res) => {
-  const { categoryID, productName } = req.params;
-  const productsRes = await service.findByCategoryAndName(categoryID, productName);
-
-  if ( productsRes.length != 0 ) {
+router.get('/:id/products', async (req, res, next) => {
+  try {
+    const categoryID = req.params.id;
+    const productsRes = await service.findByCategory(categoryID);
     res.json(productsRes);
-  } else {
-    res.status(404).json({
-      message: 'not found',
-    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:categoryID/products/:productName', async (req, res, next) => {
+  try {
+    const { categoryID, productName } = req.params;
+    const productsRes = await service.findByCategoryAndName(
+      categoryID,
+      productName
+    );
+    res.json(productsRes);
+  } catch (error) {
+    next(error);
   }
 });
 

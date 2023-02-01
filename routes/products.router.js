@@ -6,12 +6,11 @@ const router = express.Router();
 router.get('/', async (req, res, next) => {
   try {
     const { size } = req.query;
-    const numSize = parseInt(size);
-    if (numSize) {
+    if (size) {
+      const numSize = parseInt(size);
       res.json(await service.findWithSize(numSize));
-    } else {
-      res.json(await service.find());
     }
+    res.json(await service.find());
   } catch (error) {
     next(error);
   }
@@ -25,13 +24,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const product = await service.findOne(id);
-    if (product) {
-      res.status(200).json(product);
-    } else {
-      res.status(404).json({
-        message: 'not found',
-      });
-    }
+    res.status(200).json(product);
   } catch (error) {
     next(error);
   }
@@ -43,7 +36,7 @@ router.post('/', async (req, res) => {
   res.status(201).json(respuesta);
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const body = req.body;
@@ -54,13 +47,11 @@ router.put('/:id', async (req, res) => {
       data: product,
     });
   } catch (error) {
-    res.status(404).json({
-      message: error.message,
-    });
+    next(error);
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const body = req.body;
@@ -71,9 +62,7 @@ router.patch('/:id', async (req, res) => {
       data: product,
     });
   } catch (error) {
-    res.status(404).json({
-      message: error.message,
-    });
+    next(error);
   }
 });
 
