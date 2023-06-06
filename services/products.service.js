@@ -54,7 +54,7 @@ class ProductsService {
 
   async findOne(id) {
     const product = this.products.find((product) => product.id == id);
-    if ( product.isBlock ) {
+    if ( product && product.isBlock ) {
       throw boom.conflict('product is block');
     }
     if ( product ) {
