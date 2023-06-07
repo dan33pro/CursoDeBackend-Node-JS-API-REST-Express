@@ -21,11 +21,11 @@ const options = {
 };
 app.use(cors(options));
 
-app.get('/', (req, res) => {
+app.get('/api/', (req, res) => {
   res.send('<h1>Este es mi server en Express</h1>');
 });
 
-app.get('/new-route', (req, res) => {
+app.get('/api/new-route', (req, res) => {
   res.send('<h1>Esta es mi nueva ruta</h1>');
 });
 
